@@ -23,8 +23,8 @@ mainshop = [{"name":"","price":400}]
 
 reddit = praw.Reddit(client_id = "bpxQDDrhAmONCQ",
                     client_secret = "j2RkwTAYaYCHILzOsuPEUSQC_rZ2hA",
-                    username = "m4ximr3dd1tz",
-                    password = "warrior#cats",
+                    username = "Your reddit username",
+                    password = "Your Reddit password",
                     user_agent = "prawlol")
 
 
