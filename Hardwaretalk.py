@@ -811,4 +811,4 @@ async def shutdown(ctx):
 
 
 
-client.run("NjAzODMzNDQ2ODQ1OTA2OTQ0.XTlJuA.D3x3_8oJKhE651ESpAP_ucqPfEA")
+client.run("Token")
