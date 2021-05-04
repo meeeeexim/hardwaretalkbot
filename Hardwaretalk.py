@@ -7,25 +7,18 @@ import praw
 import os
 import json
 import random
-import emoji
 from discord.ext.commands import cooldown, BucketType
-import levelsys
-from discord_slash import SlashCommand, SlashContext
-
-cogs = [levelsys]
 
 
 
-mainshop = [{"name":"","price":400}]
+# In order to use PRAW, you need to create an application in your reddit account and put the Client ID, Client Secret and User Agent of your application 
+# into the strings. You also need to put in your password and username, I would personally use a second Reddit account for the whole thing.
 
-
-
-
-reddit = praw.Reddit(client_id = "bpxQDDrhAmONCQ",
-                    client_secret = "j2RkwTAYaYCHILzOsuPEUSQC_rZ2hA",
+reddit = praw.Reddit(client_id = "The client ID of your application",
+                    client_secret = "The client Secret of your application",
                     username = "Your reddit username",
                     password = "Your Reddit password",
-                    user_agent = "prawlol")
+                    user_agent = "The user agent of your application")
 
 
 
@@ -37,10 +30,14 @@ client = commands.Bot(command_prefix = "?", intents=intents)
 slash = SlashCommand(client)
 
 
+# removed the help command in order to use a custom one, if you don't want that, comment out that line.
+
 client.remove_command("help")
 
 #for i in range(len(cogs)):
 #    cogs[i].setup(client)
+
+# Function used to display the cooldown properly like "09:07" instead of "9:7".
 
 def leadingZero(time: str):
     if len(time) > 1:
@@ -48,6 +45,8 @@ def leadingZero(time: str):
     return "0" + time 
 
 
+ # Custom help command, if you don't want that, comment out that block too.
+ 
 @client.group(invoke_without_command=True)
 async def help(ctx):
     helpEm = discord.Embed(title = "Hilfe", description="Benutze ?help <command> um mehr Informationen über einen Command zu erhalten!", color=discord.Color.blue())
@@ -61,16 +60,6 @@ async def help(ctx):
     await ctx.send(embed=helpEm)
 
 
-@help.command()
-async def meme(ctx):
-    em = discord.Embed(title="Meme", description="Sendet ein zufälliges Meme aus dem r/Memes Subreddit.", color=discord.color.green())
-    em.add_field(name="**Syntax**", value="?meme")
-
-
-@slash.slash(name="slash")
-async def slash(ctx: SlashContext):
-    embed = discord.Embed(title="Dieser bot wird jetzt auch Slash-Commands unterstützen!", description="Slash-Commands - WOHOOO!", color=discord.Color.green())
-    await ctx.send(embed=embed)
 
 @client.event
 async def on_ready():
@@ -78,6 +67,8 @@ async def on_ready():
     print("Bot ist bereit!")
 
 
+# Random welcome messages - pretty simple.
+    
 @client.event
 async def on_member_join(member):
 
@@ -91,15 +82,18 @@ async def on_member_join(member):
     welcomeEm = discord.Embed(title="Willkommmen!", description=welcome_message, color=discord.Color.blue())
 
 
-    await client.get_channel(812243462492651561).send(embed=welcomeEm)
+    await client.get_channel("Your channel id").send(embed=welcomeEm)
 
 
+    
+    
     em = discord.Embed(title="Willkommen!", description="Willkommen auf dem Hardwaretalk-Server! Akzeptiere die Regeln um dich zu verifizieren. Viel Spaß auf dem Server!", color=discord.Color.blue())
-    em.set_thumbnail(url="https://yt3.ggpht.com/ytc/AAUvwng7Vy2KJZGepepJdYoRBqKSyVlpUu6_RwgRFmDL=s176-c-k-c0x00ffffff-no-rj")
+    em.set_thumbnail(url="Image url")
 
     await member.send(embed=em)
 
 
+# balance command. bal [ping] can be used to view another member's balance.
 
 @client.command(aliases=["bal"])
 async def balance(ctx,*, member: discord.Member=None):
@@ -127,12 +121,9 @@ async def balance(ctx,*, member: discord.Member=None):
         balanceEm.add_field(name = "Bankkonto", value = str(bank_amt) + " HW-Dollar! \U0001F4B0")
         await ctx.send(embed= balanceEm)
 
-@balance.error
-async def bal_error(ctx, error):
-    if isinstance(error, commands.CommandInvokeError.KeyError):
-        em = discord.Embed(title="Fehler", description="Dieser Nutzer hat noch keinen Economy-Account!", color=discord.Color.red())
-        await ctx.send(embed=em)
- 
+
+# work command, user gets random payment up to 250 coins. Random work messages can be modified.
+        
 @client.command()
 @commands.cooldown(1, 600, commands.BucketType.user)
 async def work(ctx):
@@ -184,7 +175,9 @@ async def work(ctx):
 
     wallet_amt = users[str(user.id)]["wallet"]
 
-
+# first example of a cooldown
+    
+    
 @work.error
 async def work_error(ctx, error):
     cd = round(error.retry_after)
@@ -203,6 +196,7 @@ async def work_error(ctx, error):
         await ctx.send(embed=embedWorkCooldown)
 
 
+# beg command, user receives random payment up to 30 coins, but only 50% of the time.
 
 @client.command()
 @commands.cooldown(1, 15, commands.BucketType.user)
@@ -254,6 +248,9 @@ async def beg_error(ctx, error):
         await ctx.send(embed=embedBegCooldown)
 
 
+# withdraw command, can be used like "withdraw all" to withdraw the whole balance
+        
+   
 @client.command(aliases=["with"])
 async def withdraw(ctx,amount = None):
     await open_account(ctx.author)
@@ -297,7 +294,7 @@ async def withdraw(ctx,amount = None):
         withdrawEm = discord.Embed(title="Abheben bestätigt! \u2705", description=f"Du hast {amount} HW-Dollar von deinem Konto abgehoben!", color=discord.Color.green())
         await ctx.send(embed=withdrawEm)        
 
-
+# deposit command, pretty much the withdraw command, but reversed
 
 @client.command(aliases=["dep"])
 async def deposit(ctx,amount = None):
@@ -349,7 +346,7 @@ async def deposit(ctx,amount = None):
         depositEm = discord.Embed(title="Anlegen bestätigt! \u2705", description=f"Du hast {amount} HW-Dollar auf dein Konto gelegt!", color=discord.Color.green())
         await ctx.send(embed=depositEm)
 
-
+# send command, send a member money from your bank account.
 
 @client.command()
 async def send(ctx,member: discord.Member, amount = None):
@@ -382,13 +379,8 @@ async def send(ctx,member: discord.Member, amount = None):
     sendEm = discord.Embed(title="Geldtransfer bestätigt! \u2705", description=f"Du hast {amount} HW-Dollar an {member.name} überwiesen! ", color=discord.Color.green())
     await ctx.send(embed=sendEm)
 
-@send.error
-async def send_error(ctx, error):
-    if isinstance(error, commands.CommandInvokeError.KeyError):
-        em = discord.Embed(title="Fehler", description="Dieser Nutzer hat noch keinen Economy-Account!", color=discord.Color.red())
-        await ctx.send(embed=em)
 
-
+# slots command, shows three random emojis, if they are the same, you win.
 
 @client.command()
 @commands.cooldown(1, 15, commands.BucketType.user)
@@ -446,7 +438,7 @@ async def slots_error(ctx, error):
 
 
 
-
+# rob command, rob users by a random amount if they have more than 100 coins in their wallet.
 
 @client.command()
 @commands.cooldown(1, 900, commands.BucketType.user)
@@ -494,7 +486,8 @@ async def rob_error(ctx, error):
         await ctx.send(embed=em)
 
 
-
+# gamble command, doubles your bet 30% of the time
+       
 @client.command()
 @commands.cooldown(1, 900, commands.BucketType.user)
 async def gamble(ctx, amount=None):
@@ -542,6 +535,8 @@ async def gamble_error(ctx, error):
         await ctx.send(embed=embedGambleCooldown)
     
 
+# roulette command, you may need to change the possible bets in order to use it. you can bet on a number or on sets of numbers
+    
 @client.command()
 @commands.cooldown(1, 900, commands.BucketType.user)
 async def roulette(ctx, amount = None, bet=None):
@@ -641,7 +636,8 @@ async def roulette_error(ctx, error):
         embedRouletteCooldown = discord.Embed(title="Halt, nicht so schnell!", description=msg, color=discord.Color.red())
         await ctx.send(embed=embedRouletteCooldown)
 
-
+# leaderboard, shows the richest players on a server
+        
 @client.command(aliases = ["lb"])
 async def leaderboard(ctx,x = 5):
     users = await get_bank_data()
@@ -669,15 +665,10 @@ async def leaderboard(ctx,x = 5):
 
     await ctx.send(embed = em)
 
-@client.command()
-@commands.has_any_role(743087718510362715, 812219811169697812, 743087537332944906)
-async def addmoney(ctx, user: discord.Member, amount=None):
-    if user == None:
-        user = ctx.author
 
-    await open_account(user)
+# some helper functions    
 
-    
+# used to open an account (write a user into the json)
 
 async def open_account(user):
 
@@ -694,11 +685,16 @@ async def open_account(user):
         json.dump(users, f)
     return True
 
+  
+# used only for the bal command, gets the bank data of a person  
 async def get_bank_data():
     with open("mainbank.json", "r") as f:
         users = json.load(f)
     return users
 
+  
+# updates the balance of a user by a certain amount, most used function.  
+  
 async def update_bank(user, change = 0, mode = "wallet"):
     users = await get_bank_data()
 
@@ -713,7 +709,7 @@ async def update_bank(user, change = 0, mode = "wallet"):
 
 
 
-
+# meme commands, gets random picture from a subreddit for example r/Memes or r/Me_irl.
 
 @client.command()
 @commands.cooldown(1, 5, commands.BucketType.user)
@@ -799,15 +795,6 @@ async def meirl_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         embedMeIrlCooldown = discord.Embed(title="Halt, nicht so schnell!", description=msg, color=discord.Color.red())
         await ctx.send(embed=embedMeIrlCooldown)
-
-
-@client.command()
-@commands.is_owner()
-async def shutdown(ctx):
-    await ctx.send("Bot wird ausgeschaltet!")
-    await ctx.bot.logout()
-
-
 
 
 
