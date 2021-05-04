@@ -27,7 +27,6 @@ intents.members = True
 
 
 client = commands.Bot(command_prefix = "?", intents=intents)
-slash = SlashCommand(client)
 
 
 # removed the help command in order to use a custom one, if you don't want that, comment out that line.
