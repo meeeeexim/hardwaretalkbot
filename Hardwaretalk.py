@@ -1,3 +1,6 @@
+# Code by Softwaretyp Ausm Osten, last update 07.05.2021
+
+
 import aiofiles
 import discord
 from discord.ext import commands
